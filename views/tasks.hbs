@@ -1,0 +1,91 @@
+<div class="page-header">
+  <h1 class="page-title">Liste des tâches</h1>
+  <button id="btn-show-form" class="btn-add-task">+ Ajouter une tâche</button>
+</div>
+
+<!-- Formulaire création (initialement caché) -->
+<div id="new-task-form-container" style="display:none; margin-bottom:20px; border:1px solid #ccc; padding:15px;">
+  <h2>Nouvelle tâche</h2>
+  <form method="POST" action="/tasks/new" id="new-task-form">
+    <label>
+      Titre :
+      <input type="text" name="title" required>
+    </label><br>
+
+    <label>
+      Description :
+      <textarea name="description"></textarea>
+    </label><br>
+
+    <label>
+      Statut :
+      <select name="status">
+        <option value="à faire">À faire</option>
+        <option value="en cours">En cours</option>
+        <option value="terminée">Terminée</option>
+      </select>
+    </label><br>
+
+    <label>
+      Priorité :
+      <select name="priority">
+        <option value="basse">Basse</option>
+        <option value="moyenne">Moyenne</option>
+        <option value="haute">Haute</option>
+      </select>
+    </label><br>
+
+    <label>
+      Catégorie :
+      <input type="text" name="category">
+    </label><br>
+
+    <label>
+      Date limite :
+      <input type="date" name="dueDate">
+    </label><br><br>
+
+    <button type="submit">Valider</button>
+    <button type="button" id="btn-cancel-form">Annuler</button>
+  </form>
+</div>
+
+{{#if tasks.length}}
+<ul class="task-list">
+  {{#each tasks}}
+  <li class="task-card">
+    <h2 class="task-title">{{this.title}}</h2>
+
+    <p class="task-meta">
+      Statut : <span class="task-status">{{this.status}}</span><br>
+      Priorité : <span class="task-priority">{{this.priority}}</span><br>
+      Catégorie : <span class="task-category">{{this.category}}</span>
+    </p>
+
+    {{#if this.dueDate}}
+      <p class="task-date">Date limite : {{this.dueDate}}</p>
+    {{/if}}
+
+    <a class="task-link" href="/{{this._id}}">Voir la tâche</a>
+  </li>
+  {{/each}}
+</ul>
+{{else}}
+<p class="empty-state">Aucune tâche pour le moment.</p>
+{{/if}}
+
+<script>
+  const btnShowForm = document.getElementById('btn-show-form');
+  const btnCancelForm = document.getElementById('btn-cancel-form');
+  const formContainer = document.getElementById('new-task-form-container');
+
+  btnShowForm.addEventListener('click', () => {
+    formContainer.style.display = 'block';
+    btnShowForm.style.display = 'none'; // cacher le bouton Ajouter
+  });
+
+  btnCancelForm.addEventListener('click', () => {
+    formContainer.style.display = 'none';
+    btnShowForm.style.display = 'inline-block'; // remettre le bouton Ajouter
+  });
+</script>

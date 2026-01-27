@@ -1,0 +1,142 @@
+<div class="task-container">
+
+  <!-- Bouton retour à la liste -->
+  <a href="/">← Retour à la liste</a>
+
+  <!-- Cadre de la tâche -->
+  <div class="task-card">
+
+    <!-- Champs affichage / édition -->
+    <p>
+      <strong>Titre :</strong>
+      <span id="display-title">{{task.title}}</span>
+      <input type="text" id="input-title" value="{{task.title}}" style="display:none;">
+    </p>
+
+    <p>
+      <strong>Description :</strong>
+      <span id="display-description">{{task.description}}</span>
+      <textarea id="input-description" style="display:none;">{{task.description}}</textarea>
+    </p>
+
+    <p>
+      <strong>Statut :</strong>
+      <span id="display-status">{{task.status}}</span>
+      <select id="input-status" style="display:none;">
+        <option value="à faire" {{#if (eq task.status "à faire")}}selected{{/if}}>À faire</option>
+        <option value="en cours" {{#if (eq task.status "en cours")}}selected{{/if}}>En cours</option>
+        <option value="terminée" {{#if (eq task.status "terminée")}}selected{{/if}}>Terminée</option>
+      </select>
+    </p>
+
+    <p>
+      <strong>Priorité :</strong>
+      <span id="display-priority">{{task.priority}}</span>
+      <select id="input-priority" style="display:none;">
+        <option value="basse" {{#if (eq task.priority "basse")}}selected{{/if}}>Basse</option>
+        <option value="moyenne" {{#if (eq task.priority "moyenne")}}selected{{/if}}>Moyenne</option>
+        <option value="haute" {{#if (eq task.priority "haute")}}selected{{/if}}>Haute</option>
+      </select>
+    </p>
+
+    <p>
+      <strong>Catégorie :</strong>
+      <span id="display-category">{{task.category}}</span>
+      <input type="text" id="input-category" value="{{task.category}}" style="display:none;">
+    </p>
+
+    {{#if task.dueDate}}
+    <p>
+      <strong>Date limite :</strong>
+      <span id="display-dueDate">{{task.dueDate}}</span>
+      <input type="date" id="input-dueDate" value="{{task.dueDate}}" style="display:none;">
+    </p>
+    {{/if}}
+
+    <p>
+      <strong>Créée le :</strong> {{task.createdAt}} <br>
+      <strong>Dernière modification :</strong> {{task.updatedAt}}
+    </p>
+
+    <!-- Boutons -->
+<div class="task-buttons">
+  <form method="POST" action="/delete/{{task._id}}" style="display:inline;">
+    <button type="submit">Supprimer</button>
+  </form>
+
+  <button type="button" id="edit-btn">Modifier</button>
+  <button type="button" id="cancel-btn" style="display:none;">Annuler</button>
+
+  <form method="POST" action="/put/{{task._id}}" id="update-form" style="display:none;">
+    <input type="hidden" name="title" id="form-title">
+    <input type="hidden" name="description" id="form-description">
+    <input type="hidden" name="status" id="form-status">
+    <input type="hidden" name="priority" id="form-priority">
+    <input type="hidden" name="category" id="form-category">
+    <input type="hidden" name="dueDate" id="form-dueDate">
+    <button type="submit">Valider</button>
+  </form>
+</div>
+
+<script>
+ const editBtn = document.getElementById('edit-btn');
+const cancelBtn = document.getElementById('cancel-btn');
+const updateForm = document.getElementById('update-form');
+
+// On stocke les valeurs initiales pour revenir en arrière
+const initialValues = {
+  title: document.getElementById('display-title').innerText,
+  description: document.getElementById('display-description').innerText,
+  status: document.getElementById('display-status').innerText,
+  priority: document.getElementById('display-priority').innerText,
+  category: document.getElementById('display-category').innerText,
+  dueDate: document.getElementById('display-dueDate') ? document.getElementById('display-dueDate').innerText : ''
+};
+
+editBtn.addEventListener('click', () => {
+  toggleEditMode(true);
+});
+
+cancelBtn.addEventListener('click', () => {
+  // Revenir aux valeurs initiales
+  document.getElementById('display-title').innerText = initialValues.title;
+  document.getElementById('display-description').innerText = initialValues.description;
+  document.getElementById('display-status').innerText = initialValues.status;
+  document.getElementById('display-priority').innerText = initialValues.priority;
+  document.getElementById('display-category').innerText = initialValues.category;
+  if(document.getElementById('display-dueDate')) {
+    document.getElementById('display-dueDate').innerText = initialValues.dueDate;
+  }
+
+  // Cacher les inputs
+  toggleEditMode(false);
+});
+
+// Fonction pour toggle les champs et boutons
+function toggleEditMode(isEditing) {
+  const fields = ['title', 'description', 'status', 'priority', 'category', 'dueDate'];
+  fields.forEach(field => {
+    const display = document.getElementById('display-' + field);
+    const input = document.getElementById('input-' + field);
+    if(input) input.style.display = isEditing ? 'inline' : 'none';
+    if(display) display.style.display = isEditing ? 'none' : 'inline';
+  });
+
+  // Toggle boutons
+  editBtn.style.display = isEditing ? 'none' : 'inline-block';
+  cancelBtn.style.display = isEditing ? 'inline-block' : 'none';
+  updateForm.style.display = isEditing ? 'inline-block' : 'none';
+}
+
+// Avant envoi, copier les valeurs des champs visibles dans les hidden inputs
+updateForm.addEventListener('submit', () => {
+  document.getElementById('form-title').value = document.getElementById('input-title').value;
+  document.getElementById('form-description').value = document.getElementById('input-description').value;
+  document.getElementById('form-status').value = document.getElementById('input-status').value;
+  document.getElementById('form-priority').value = document.getElementById('input-priority').value;
+  document.getElementById('form-category').value = document.getElementById('input-category').value;
+  const due = document.getElementById('input-dueDate');
+  if(due) document.getElementById('form-dueDate').value = due.value;
+});
+
+</script>

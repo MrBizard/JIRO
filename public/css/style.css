@@ -1,0 +1,165 @@
+/* Reset très léger */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f5f5;
+  color: #222;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+/* Conteneur principal */
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+/* Titres */
+h1 {
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+/* Liste des tâches */
+ul {
+  list-style: none;
+}
+
+li {
+  border-bottom: 1px solid #ddd;
+  padding: 15px 0;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+/* Texte */
+p {
+  margin-bottom: 10px;
+}
+
+/* Liens */
+a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Infos de tâche */
+.task-meta {
+  font-size: 0.9em;
+  color: #555;
+}
+
+
+/* ===== Page ===== */
+.page-title {
+  margin-bottom: 25px;
+}
+
+/* ===== Liste ===== */
+.task-list {
+  list-style: none;
+  padding: 0;
+}
+
+/* ===== Carte tâche ===== */
+.task-card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+}
+
+/* ===== Titre ===== */
+.task-title {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+/* ===== Méta infos ===== */
+.task-meta {
+  margin-bottom: 10px;
+  color: #444;
+  font-size: 0.95em;
+}
+
+.task-status,
+.task-priority,
+.task-category {
+  font-weight: bold;
+}
+
+/* ===== Date ===== */
+.task-date {
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* ===== Lien ===== */
+.task-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #0066cc;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.task-link:hover {
+  text-decoration: underline;
+}
+
+/* ===== État vide ===== */
+.empty-state {
+  color: #777;
+  font-style: italic;
+}
+
+/* ===== Page header ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+/* Bouton ajouter tâche */
+.btn-add-task {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #28a745;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-add-task:hover {
+  background-color: #218838;
+}
+.task-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
