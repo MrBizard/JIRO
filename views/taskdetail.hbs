@@ -59,84 +59,526 @@
     </p>
 
     <!-- Boutons -->
-<div class="task-buttons">
-  <form method="POST" action="/delete/{{task._id}}" style="display:inline;">
-    <button type="submit">Supprimer</button>
-  </form>
+    <div class="task-buttons">
+      <form method="POST" action="/delete/{{task._id}}" style="display:inline;">
+        <button type="submit">Supprimer</button>
+      </form>
 
-  <button type="button" id="edit-btn">Modifier</button>
-  <button type="button" id="cancel-btn" style="display:none;">Annuler</button>
+      <button type="button" id="edit-btn">Modifier</button>
+      <button type="button" id="cancel-btn" style="display:none;">Annuler</button>
 
-  <form method="POST" action="/put/{{task._id}}" id="update-form" style="display:none;">
-    <input type="hidden" name="title" id="form-title">
-    <input type="hidden" name="description" id="form-description">
-    <input type="hidden" name="status" id="form-status">
-    <input type="hidden" name="priority" id="form-priority">
-    <input type="hidden" name="category" id="form-category">
-    <input type="hidden" name="dueDate" id="form-dueDate">
-    <button type="submit">Valider</button>
-  </form>
+      <form method="POST" action="/put/{{task._id}}" id="update-form" style="display:none;">
+        <input type="hidden" name="title" id="form-title">
+        <input type="hidden" name="description" id="form-description">
+        <input type="hidden" name="status" id="form-status">
+        <input type="hidden" name="priority" id="form-priority">
+        <input type="hidden" name="category" id="form-category">
+        <input type="hidden" name="dueDate" id="form-dueDate">
+        <button type="submit">Valider</button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Section Sous-tâches -->
+  <div class="subtasks-section">
+    <h3>Sous-tâches</h3>
+    
+    <!-- Liste des sous-tâches existantes -->
+    <div class="subtasks-list">
+      {{#if task.subTasks}}
+        {{#each task.subTasks}}
+        <div class="subtask-item" data-subtask-id="{{this._id}}">
+          <input type="checkbox" id="subtask-{{@index}}" {{#if this.completed}}checked{{/if}} class="subtask-checkbox">
+          <label for="subtask-{{@index}}" class="{{#if this.completed}}completed{{/if}}">
+            {{this.title}}
+          </label>
+          <button class="delete-subtask-btn" type="button">✕</button>
+        </div>
+        {{/each}}
+      {{else}}
+        <p class="no-items">Aucune sous-tâche pour le moment</p>
+      {{/if}}
+    </div>
+
+    <!-- Formulaire d'ajout de sous-tâche -->
+    <div class="add-subtask-form">
+      <form method="POST" action="/{{task._id}}/subtasks">
+        <input type="text" name="title" placeholder="Nouvelle sous-tâche..." class="subtask-input">
+        <button type="submit" id="add-subtask-btn">Ajouter</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Section Commentaires -->
+  <div class="comments-section">
+    <h3>Commentaires</h3>
+    
+    <!-- Liste des commentaires existants -->
+    <div class="comments-list">
+      {{#if task.comments}}
+        {{#each task.comments}}
+        <div class="comment-item">
+          <div class="comment-header">
+            <strong class="comment-author">{{this.author}}</strong>
+            <span class="comment-date">{{this.date}}</span>
+          </div>
+          <div class="comment-message">{{this.message}}</div>
+        </div>
+        {{/each}}
+      {{else}}
+        <p class="no-items">Aucun commentaire pour le moment</p>
+      {{/if}}
+    </div>
+
+    <!-- Formulaire d'ajout de commentaire -->
+    <div class="add-comment-form">
+      <input type="text" id="new-comment-author" placeholder="Votre nom" class="comment-input">
+      <textarea id="new-comment-message" placeholder="Votre commentaire..." class="comment-textarea"></textarea>
+      <button type="button" id="add-comment-btn">Ajouter un commentaire</button>
+    </div>
+  </div>
+
 </div>
 
-<script>
- const editBtn = document.getElementById('edit-btn');
-const cancelBtn = document.getElementById('cancel-btn');
-const updateForm = document.getElementById('update-form');
-
-// On stocke les valeurs initiales pour revenir en arrière
-const initialValues = {
-  title: document.getElementById('display-title').innerText,
-  description: document.getElementById('display-description').innerText,
-  status: document.getElementById('display-status').innerText,
-  priority: document.getElementById('display-priority').innerText,
-  category: document.getElementById('display-category').innerText,
-  dueDate: document.getElementById('display-dueDate') ? document.getElementById('display-dueDate').innerText : ''
-};
-
-editBtn.addEventListener('click', () => {
-  toggleEditMode(true);
-});
-
-cancelBtn.addEventListener('click', () => {
-  // Revenir aux valeurs initiales
-  document.getElementById('display-title').innerText = initialValues.title;
-  document.getElementById('display-description').innerText = initialValues.description;
-  document.getElementById('display-status').innerText = initialValues.status;
-  document.getElementById('display-priority').innerText = initialValues.priority;
-  document.getElementById('display-category').innerText = initialValues.category;
-  if(document.getElementById('display-dueDate')) {
-    document.getElementById('display-dueDate').innerText = initialValues.dueDate;
+<style>
+  /* Styles pour les sous-tâches */
+  .subtasks-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
   }
 
-  // Cacher les inputs
-  toggleEditMode(false);
-});
+  .subtasks-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.3em;
+  }
 
-// Fonction pour toggle les champs et boutons
-function toggleEditMode(isEditing) {
-  const fields = ['title', 'description', 'status', 'priority', 'category', 'dueDate'];
-  fields.forEach(field => {
-    const display = document.getElementById('display-' + field);
-    const input = document.getElementById('input-' + field);
-    if(input) input.style.display = isEditing ? 'inline' : 'none';
-    if(display) display.style.display = isEditing ? 'none' : 'inline';
+  .subtasks-list {
+    margin-bottom: 20px;
+  }
+
+  .subtask-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    transition: background 0.2s;
+  }
+
+  .subtask-item:hover {
+    background: #f5f5f5;
+  }
+
+  .subtask-checkbox {
+    margin-right: 10px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+
+  .subtask-item label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 1em;
+  }
+
+  .subtask-item label.completed {
+    text-decoration: line-through;
+    color: #888;
+  }
+
+  .delete-subtask-btn {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+
+  .delete-subtask-btn:hover {
+    background: #cc0000;
+  }
+
+  .add-subtask-form {
+    display: flex;
+    gap: 10px;
+  }
+
+  .subtask-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+  }
+
+  .add-subtask-form button {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.2s;
+  }
+
+  .add-subtask-form button:hover {
+    background: #45a049;
+  }
+
+  /* Styles pour les commentaires */
+  .comments-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    border: 1px solid #b8d4f1;
+  }
+
+  .comments-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.3em;
+  }
+
+  .comments-list {
+    margin-bottom: 20px;
+  }
+
+  .comment-item {
+    background: white;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    border: 1px solid #d0e4f7;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e8f2fb;
+  }
+
+  .comment-author {
+    color: #2c5aa0;
+    font-size: 1em;
+  }
+
+  .comment-date {
+    color: #888;
+    font-size: 0.85em;
+  }
+
+  .comment-message {
+    color: #333;
+    line-height: 1.5;
+  }
+
+  .add-comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .comment-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+  }
+
+  .comment-textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .add-comment-form button {
+    align-self: flex-start;
+    padding: 10px 20px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.2s;
+  }
+
+  .add-comment-form button:hover {
+    background: #0b7dda;
+  }
+
+  .no-items {
+    color: #888;
+    font-style: italic;
+    padding: 10px;
+  }
+</style>
+
+<script>
+  const editBtn = document.getElementById('edit-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
+  const updateForm = document.getElementById('update-form');
+
+  // On stocke les valeurs initiales pour revenir en arrière
+  const initialValues = {
+    title: document.getElementById('display-title').innerText,
+    description: document.getElementById('display-description').innerText,
+    status: document.getElementById('display-status').innerText,
+    priority: document.getElementById('display-priority').innerText,
+    category: document.getElementById('display-category').innerText,
+    dueDate: document.getElementById('display-dueDate') ? document.getElementById('display-dueDate').innerText : ''
+  };
+
+  editBtn.addEventListener('click', () => {
+    toggleEditMode(true);
   });
 
-  // Toggle boutons
-  editBtn.style.display = isEditing ? 'none' : 'inline-block';
-  cancelBtn.style.display = isEditing ? 'inline-block' : 'none';
-  updateForm.style.display = isEditing ? 'inline-block' : 'none';
-}
+  cancelBtn.addEventListener('click', () => {
+    // Revenir aux valeurs initiales
+    document.getElementById('display-title').innerText = initialValues.title;
+    document.getElementById('display-description').innerText = initialValues.description;
+    document.getElementById('display-status').innerText = initialValues.status;
+    document.getElementById('display-priority').innerText = initialValues.priority;
+    document.getElementById('display-category').innerText = initialValues.category;
+    if(document.getElementById('display-dueDate')) {
+      document.getElementById('display-dueDate').innerText = initialValues.dueDate;
+    }
 
-// Avant envoi, copier les valeurs des champs visibles dans les hidden inputs
-updateForm.addEventListener('submit', () => {
-  document.getElementById('form-title').value = document.getElementById('input-title').value;
-  document.getElementById('form-description').value = document.getElementById('input-description').value;
-  document.getElementById('form-status').value = document.getElementById('input-status').value;
-  document.getElementById('form-priority').value = document.getElementById('input-priority').value;
-  document.getElementById('form-category').value = document.getElementById('input-category').value;
-  const due = document.getElementById('input-dueDate');
-  if(due) document.getElementById('form-dueDate').value = due.value;
-});
+    // Cacher les inputs
+    toggleEditMode(false);
+  });
+
+  // Fonction pour toggle les champs et boutons
+  function toggleEditMode(isEditing) {
+    const fields = ['title', 'description', 'status', 'priority', 'category', 'dueDate'];
+    fields.forEach(field => {
+      const display = document.getElementById('display-' + field);
+      const input = document.getElementById('input-' + field);
+      if(input) input.style.display = isEditing ? 'inline' : 'none';
+      if(display) display.style.display = isEditing ? 'none' : 'inline';
+    });
+
+    // Toggle boutons
+    editBtn.style.display = isEditing ? 'none' : 'inline-block';
+    cancelBtn.style.display = isEditing ? 'inline-block' : 'none';
+    updateForm.style.display = isEditing ? 'inline-block' : 'none';
+  }
+
+  // Avant envoi, copier les valeurs des champs visibles dans les hidden inputs
+  updateForm.addEventListener('submit', () => {
+    document.getElementById('form-title').value = document.getElementById('input-title').value;
+    document.getElementById('form-description').value = document.getElementById('input-description').value;
+    document.getElementById('form-status').value = document.getElementById('input-status').value;
+    document.getElementById('form-priority').value = document.getElementById('input-priority').value;
+    document.getElementById('form-category').value = document.getElementById('input-category').value;
+    const due = document.getElementById('input-dueDate');
+    if(due) document.getElementById('form-dueDate').value = due.value;
+  });
+
+
+  // Cocher/décocher une sous-tâche
+  document.querySelectorAll('.subtask-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+      const subtaskItem = e.target.closest('.subtask-item');
+      const subtaskId = subtaskItem.dataset.subtaskId;
+      const completed = e.target.checked;
+      
+      // Mettre à jour visuellement
+      const label = subtaskItem.querySelector('label');
+      if (completed) {
+        label.classList.add('completed');
+      } else {
+        label.classList.remove('completed');
+      }
+      
+      // Appel API pour mettre à jour le statut de la sous-tâche
+      const taskId = document.getElementById('update-form').getAttribute('action').match(/\/put\/(.+)/)[1];
+      
+      fetch(`/${taskId}/subtasks/${subtaskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ completed })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur lors de la mise à jour');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Sous-tâche mise à jour avec succès', data);
+      })
+      .catch(error => {
+        console.error('Erreur API:', error);
+        // Revert visual changes on error
+        if (completed) {
+          label.classList.remove('completed');
+          e.target.checked = false;
+        } else {
+          label.classList.add('completed');
+          e.target.checked = true;
+        }
+      });
+    });
+  });
+
+  // Supprimer une sous-tâche
+  document.querySelectorAll('.delete-subtask-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const subtaskItem = e.target.closest('.subtask-item');
+      const subtaskId = subtaskItem.dataset.subtaskId;
+      
+      if (confirm('Êtes-vous sûr de vouloir supprimer cette sous-tâche ?')) {
+        // Appel API pour supprimer la sous-tâche
+        const taskId = document.getElementById('update-form').getAttribute('action').match(/\/put\/(.+)/)[1];
+        
+        fetch(`/${taskId}/subtasks/${subtaskId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erreur lors de la suppression');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Sous-tâche supprimée avec succès', data);
+          // Retirer l'élément du DOM
+          subtaskItem.remove();
+          
+          // Afficher le message "Aucune sous-tâche" si liste vide
+          const subtasksList = document.querySelector('.subtasks-list');
+          if (subtasksList.querySelectorAll('.subtask-item').length === 0) {
+            subtasksList.innerHTML = '<p class="no-items">Aucune sous-tâche pour le moment</p>';
+          }
+        })
+        .catch(error => {
+          console.error('Erreur API:', error);
+          alert('Erreur lors de la suppression de la sous-tâche');
+        });
+      }
+    });
+  });
+
+  // ==================== GESTION DES COMMENTAIRES ====================
+  
+  // Ajouter un commentaire
+  document.getElementById('add-comment-btn').addEventListener('click', () => {
+    const authorInput = document.getElementById('new-comment-author');
+    const messageInput = document.getElementById('new-comment-message');
+    
+    const author = authorInput.value.trim();
+    const message = messageInput.value.trim();
+    
+    if (author === '' || message === '') {
+      alert('Veuillez remplir tous les champs');
+      return;
+    }
+
+    // Appel API pour ajouter le commentaire
+    const taskId = document.getElementById('update-form').getAttribute('action').match(/\/put\/(.+)/)[1];
+    
+    fetch(`/${taskId}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ author, message })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'ajout du commentaire');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Commentaire ajouté avec succès', data);
+      
+      // Mettre à jour la liste dynamiquement
+      const commentsList = document.querySelector('.comments-list');
+      
+      // Retirer le message "Aucun commentaire" s'il existe
+      const noItems = commentsList.querySelector('.no-items');
+      if (noItems) {
+        noItems.remove();
+      }
+      
+      // Créer et ajouter le nouvel élément de commentaire
+      const commentItem = document.createElement('div');
+      commentItem.className = 'comment-item';
+      
+      const date = new Date(data.comment.date).toLocaleString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      commentItem.innerHTML = `
+        <div class="comment-header">
+          <strong class="comment-author">${escapeHtml(data.comment.author)}</strong>
+          <span class="comment-date">${date}</span>
+        </div>
+        <div class="comment-message">${escapeHtml(data.comment.message)}</div>
+      `;
+      
+      commentsList.appendChild(commentItem);
+      
+      // Réinitialiser les champs
+      authorInput.value = '';
+      messageInput.value = '';
+    })
+    .catch(error => {
+      console.error('Erreur API:', error);
+      alert('Erreur lors de l\'ajout du commentaire');
+    });
+  });
+
+  // Permettre d'envoyer avec Entrée (Ctrl+Entrée dans le textarea)
+  document.getElementById('new-comment-message').addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'Enter') {
+      document.getElementById('add-comment-btn').click();
+    }
+  });
+
+  // Fonction pour échapper les caractères HTML (sécurité XSS)
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
 
 </script>
