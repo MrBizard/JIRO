@@ -50,6 +50,44 @@
   </form>
 </div>
 
+<!-- Filtres -->
+<div class="task-filters" style="margin-bottom:20px; padding:15px; border:1px solid #ddd;">
+  <form method="GET" action="/" id="filter-form">
+
+    <input
+      type="text"
+      name="title"
+      placeholder="Rechercher un titre..."
+      value="{{query.title}}"
+    />
+
+    <select name="status">
+      <option value="">Tous les statuts</option>
+      <option value="à faire">À faire</option>
+      <option value="en cours">En cours</option>
+      <option value="terminée">Terminée</option>
+    </select>
+
+    <select name="priority">
+      <option value="">Toutes les priorités</option>
+      <option value="basse">Basse</option>
+      <option value="moyenne">Moyenne</option>
+      <option value="haute">Haute</option>
+    </select>
+
+    <input
+      type="text"
+      name="category"
+      placeholder="Catégorie"
+      value="{{query.category}}"
+    />
+
+    <button type="submit">Filtrer</button>
+    <a href="/" style="margin-left:10px;">Reset</a>
+
+  </form>
+</div>
+
 {{#if tasks.length}}
 <ul class="task-list">
   {{#each tasks}}

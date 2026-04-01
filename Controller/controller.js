@@ -192,6 +192,65 @@ const addComment = async (req, res) => {
   }
 };
 
+//ajout du filtrage
+const getTasksWithFilters = async (req, res) => {
+  try {
+    const {
+      title,
+      status,
+      priority,
+      category,
+      dateFrom,
+      dateTo
+    } = req.query;
+
+    const filter = {};
+
+    // Recherche titre
+    if (title) {
+      filter.title = { $regex: title, $options: 'i' };
+    }
+
+    // Status (à faire / en cours / terminée)
+    if (status) {
+      filter.status = status;
+    }
+
+    // Priority (basse / moyenne / haute)
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    // Category
+    if (category) {
+      filter.category = category;
+    }
+
+    // Filtre par date de création
+    if (dateFrom || dateTo) {
+      filter.createdAt = {};
+
+      if (dateFrom) filter.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) filter.createdAt.$lte = new Date(dateTo);
+    }
+
+    const tasks = await Task.find(filter)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.render('tasks', {
+      title: 'liste filtrée des tâches',
+      tasks,
+      query: req.query
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Erreur lors du chargement des tâches');
+  }
+};
+
+
 module.exports = {
   getTasks,
   getCurrentTask,
@@ -201,5 +260,6 @@ module.exports = {
   getCurrentSubTask,
   updateCurrentSubtask,
   suppCurrentSubtask,
-  addComment
+  addComment,
+  getTasksWithFilters
 };

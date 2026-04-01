@@ -6,7 +6,7 @@ const controller = require("../Controller/controller");
  * GET /tasks
  * Liste de toutes les tâches
  */
-router.get('/', controller.getTasks);
+router.get('/', controller.getTasksWithFilters);
 
 /**
  * GET /tasks/:id
