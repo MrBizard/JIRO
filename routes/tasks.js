@@ -31,4 +31,7 @@ router.delete('/:id/subtasks/:subId', controller.suppCurrentSubtask);
 // POST /tasks/:id/comments : ajouter un commentaire
 router.post('/:id/comments', controller.addComment);
 
+// DELETE /tasks/:id/comments/:commentId : supprimer un commentaire
+router.delete('/:id/comments/:commentId', controller.deleteComment);
+
 module.exports = router;

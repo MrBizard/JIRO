@@ -192,6 +192,30 @@ const addComment = async (req, res) => {
   }
 };
 
+/**
+ * DELETE /tasks/:id/comments/:commentId
+ */
+const deleteComment = async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: 'Tâche non trouvée' });
+    }
+
+    const comment = task.comments.id(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Commentaire non trouvé' });
+    }
+
+    comment.deleteOne();
+    await task.save();
+
+    res.json({ message: 'Commentaire supprimé avec succès' });
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur serveur', error: err.message });
+  }
+};
+
 //ajout du filtrage
 const getTasksWithFilters = async (req, res) => {
   try {
@@ -261,5 +285,6 @@ module.exports = {
   updateCurrentSubtask,
   suppCurrentSubtask,
   addComment,
+  deleteComment,
   getTasksWithFilters
 };

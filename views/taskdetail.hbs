@@ -118,10 +118,11 @@
     <div class="comments-list">
       {{#if task.comments}}
         {{#each task.comments}}
-        <div class="comment-item">
+        <div class="comment-item" data-comment-id="{{this._id}}">
           <div class="comment-header">
             <strong class="comment-author">{{this.author}}</strong>
             <span class="comment-date">{{this.date}}</span>
+            <button class="delete-comment-btn" type="button" data-comment-id="{{this._id}}">✕</button>
           </div>
           <div class="comment-message">{{this.message}}</div>
         </div>
@@ -270,6 +271,7 @@
   .comment-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
     padding-bottom: 8px;
     border-bottom: 1px solid #e8f2fb;
@@ -283,6 +285,24 @@
   .comment-date {
     color: #888;
     font-size: 0.85em;
+    flex: 1;
+    text-align: right;
+    margin-right: 12px;
+  }
+
+  .delete-comment-btn {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+
+  .delete-comment-btn:hover {
+    background: #cc0000;
   }
 
   .comment-message {
@@ -580,5 +600,60 @@
     };
     return text.replace(/[&<>"']/g, m => map[m]);
   }
+
+  // Supprimer un commentaire
+  function attachDeleteCommentListeners() {
+    document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const commentItem = e.target.closest('.comment-item');
+        const commentId = btn.dataset.commentId;
+        
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) {
+          // Appel API pour supprimer le commentaire
+          const taskId = document.getElementById('update-form').getAttribute('action').match(/\/put\/(.+)/)[1];
+          
+          fetch(`/${taskId}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Erreur lors de la suppression');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Commentaire supprimé avec succès', data);
+            // Retirer l'élément du DOM
+            commentItem.remove();
+            
+            // Afficher le message "Aucun commentaire" si liste vide
+            const commentsList = document.querySelector('.comments-list');
+            if (commentsList.querySelectorAll('.comment-item').length === 0) {
+              commentsList.innerHTML = '<p class="no-items">Aucun commentaire pour le moment</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Erreur API:', error);
+            alert('Erreur lors de la suppression du commentaire');
+          });
+        }
+      });
+    });
+  }
+
+  // Initialiser les écouteurs de suppression au chargement
+  attachDeleteCommentListeners();
+  
+  // Réattacher après chaque nouveau commentaire
+  const originalAddCommentClick = document.getElementById('add-comment-btn').onclick;
+  document.getElementById('add-comment-btn').addEventListener('click', () => {
+    // Donner le temps au DOM de se mettre à jour
+    setTimeout(() => {
+      attachDeleteCommentListeners();
+    }, 100);
+  });
 
 </script>
